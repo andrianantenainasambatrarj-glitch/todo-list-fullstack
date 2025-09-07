@@ -7,9 +7,23 @@ use App\Repository\TaskRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 
+#[ApiResource(
+    operations: [
+        new Get(security: "is_granted('ROLE_USER') and object.getUser() == user"),
+        new GetCollection(security: "is_granted('ROLE_USER')"),
+        new Post(security: "is_granted('ROLE_USER')"),
+        new Put(security: "is_granted('ROLE_USER') and object.getUser() == user"),
+        new Delete(security: "is_granted('ROLE_USER') and object.getUser() == user"),
+    ]
+)]
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
-#[ApiResource]
+
 class Task
 {
     #[ORM\Id]
