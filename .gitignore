@@ -1,0 +1,11 @@
+# Symfony (backend)
+backend/vendor/
+backend/var/
+backend/.env.local
+backend/config/jwt/*.pem
+backend/public/bundles/
+
+# React (frontend)
+frontend/node_modules/
+frontend/build/
+frontend/.env
