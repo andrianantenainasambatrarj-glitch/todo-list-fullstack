@@ -23,7 +23,6 @@ use ApiPlatform\Metadata\Delete;
     ]
 )]
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
-
 class Task
 {
     #[ORM\Id]
@@ -32,18 +31,19 @@ class Task
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups('read')]
+    #[Groups(['read', 'write'])] // Ajout de 'write' pour permettre les mises à jour
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups('read')]
+    #[Groups(['read', 'write'])] // Ajout de 'write' pour permettre les mises à jour
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups('read')]
+    #[Groups(['read', 'write'])] // Ajout de 'write' pour permettre les mises à jour
     private ?bool $completed = null;
 
     #[ORM\Column]
+    #[Groups(['read'])] // 'createdAt' est en lecture seule pour l'instant
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
