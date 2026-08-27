@@ -1,0 +1,14 @@
+{
+  "name": "backend-php-runtime",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Serveur HTTP Node.js embarquant PHP 8.4 (via @platformatic/php-node) pour exécuter le backend Symfony sans installation PHP système.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "setup-db": "node setup-db.js"
+  },
+  "dependencies": {
+    "@platformatic/php-node": "^1.4.0"
+  }
+}

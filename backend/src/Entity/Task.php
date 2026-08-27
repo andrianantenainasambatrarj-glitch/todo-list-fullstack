@@ -6,21 +6,26 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TaskRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
         new Get(security: "is_granted('ROLE_USER') and object.getUser() == user"),
         new GetCollection(security: "is_granted('ROLE_USER')"),
         new Post(security: "is_granted('ROLE_USER')"),
-        new Put(security: "is_granted('ROLE_USER') and object.getUser() == user"),
+        // PATCH (merge) plutôt que PUT (remplacement) : on ne met à jour
+        // que les champs envoyés, sans risque de détacher l'utilisateur.
+        new Patch(security: "is_granted('ROLE_USER') and object.getUser() == user"),
         new Delete(security: "is_granted('ROLE_USER') and object.getUser() == user"),
-    ]
+    ],
+    normalizationContext: ['groups' => ['task:read']],
+    denormalizationContext: ['groups' => ['task:write']],
 )]
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 class Task
@@ -28,24 +33,28 @@ class Task
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['task:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['read', 'write'])] // Ajout de 'write' pour permettre les mises à jour
+    #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
+    #[Assert\Length(max: 255)]
+    #[Groups(['task:read', 'task:write'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['read', 'write'])] // Ajout de 'write' pour permettre les mises à jour
+    #[Groups(['task:read', 'task:write'])]
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['read', 'write'])] // Ajout de 'write' pour permettre les mises à jour
+    #[Groups(['task:read', 'task:write'])]
     private ?bool $completed = null;
 
     #[ORM\Column]
-    #[Groups(['read'])] // 'createdAt' est en lecture seule pour l'instant
+    #[Groups(['task:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
+    // L'utilisateur est assigné automatiquement (TaskListener), jamais par le client.
     #[ORM\ManyToOne(inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;

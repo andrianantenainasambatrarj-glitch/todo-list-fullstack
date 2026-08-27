@@ -3,3 +3,8 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# Route interceptée par le firewall json_login (voir config/packages/security.yaml).
+api_login:
+    path: /api/login
+    methods: [POST]
