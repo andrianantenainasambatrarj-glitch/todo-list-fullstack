@@ -36,7 +36,7 @@ function Login() {
             <div className="rounded-3xl border border-base-200 bg-base-100 p-8 shadow-xl shadow-primary/5 sm:p-10">
                 <header className="mb-8">
                     <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-                        Bon retour&nbsp;! 👋
+                        Bon retour&nbsp;! 
                     </h1>
                     <p className="mt-2 text-sm text-base-content/55">
                         Connectez-vous pour retrouver vos tâches.

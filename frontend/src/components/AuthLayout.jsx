@@ -44,13 +44,7 @@ function AuthLayout({ children }) {
                         « Depuis que j’utilise Taskly, je termine mes journées l’esprit léger.
                         Tout est noté, rien n’est oublié. »
                     </blockquote>
-                    <figcaption className="mt-3 flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-sm font-bold">SM</span>
-                        <div className="text-xs">
-                            <p className="font-semibold text-white">Sarah M.</p>
-                            <p className="text-white/60">Cheffe de projet</p>
-                        </div>
-                    </figcaption>
+                    
                 </figure>
             </aside>
 
