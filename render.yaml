@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------
+# Blueprint Render.com — déploiement du backend Symfony (plan gratuit)
+# Render détecte ce fichier : « New + » -> « Blueprint » -> choisir ce repo.
+# ---------------------------------------------------------------------------
+services:
+  - type: web
+    name: taskly-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: "0"
+      - key: APP_SECRET
+        generateValue: true          # généré automatiquement par Render
+      - key: JWT_PASSPHRASE
+        generateValue: true          # généré automatiquement par Render
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskly-db
+          property: connectionString
+      - key: CORS_ALLOW_ORIGIN
+        value: "^https://.*\\.vercel\\.app$"   # à adapter à votre domaine front
+
+databases:
+  - name: taskly-db
+    plan: free
+    databaseName: taskly
+    user: taskly

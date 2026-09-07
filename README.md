@@ -77,17 +77,59 @@ Fichier `backend/.env` :
 
 Frontend : `VITE_API_URL` (URL de l'API au build, par défaut `/api` relatif).
 
-## Déploiement (production)
+## Déploiement gratuit (Render + Vercel)
 
-1. **Backend**
-   - `APP_ENV=prod` ; changez `APP_SECRET` et `JWT_PASSPHRASE`, régénérez les clés JWT.
-   - Passez sur MySQL/PostgreSQL et lancez les migrations : `php bin/console doctrine:migrations:migrate`.
-   - Servez `backend/public/` derrière Nginx/Apache + PHP-FPM.
-   - Restreignez `CORS_ALLOW_ORIGIN` à votre domaine.
-2. **Frontend**
-   - `npm run build` → servez `frontend/dist/` (statique).
-   - Faites pointer `/api` vers le backend via le reverse proxy (même domaine = pas de CORS),
-     ou définissez `VITE_API_URL=https://api.mondomaine.com/api` au build.
+Le repo contient tout le nécessaire :
+
+| Fichier | Rôle |
+|---------|------|
+| `render.yaml` | Blueprint Render : API + base PostgreSQL gratuite |
+| `backend/Dockerfile` | Image de production (PHP 8.3 + Apache) |
+| `backend/docker/entrypoint.sh` | Clés JWT auto-générées, schéma BDD auto-appliqué |
+| `frontend/vercel.json` | Rewrites SPA pour React Router |
+
+### Backend sur Render (gratuit)
+
+1. Créez un compte sur https://render.com (connexion GitHub).
+2. **New +** → **Blueprint** → sélectionnez ce repo et la branche à déployer.
+3. Render lit `render.yaml` et crée automatiquement :
+   - le service web `taskly-api` (Docker, plan gratuit),
+   - la base PostgreSQL `taskly-db` (gratuite),
+   - `APP_SECRET` et `JWT_PASSPHRASE` (générés),
+   - `DATABASE_URL` (branché sur la base).
+4. Au premier démarrage, l'entrypoint génère les clés JWT et crée les tables.
+5. Notez l'URL publique, ex. `https://taskly-api.onrender.com`.
+
+> ⚠️ Plan gratuit Render : le service s'endort après 15 min d'inactivité
+> (premier appel suivant ≈ 30-60 s) et la base PostgreSQL gratuite expire
+> après 30 jours (recréable). Suffisant pour une démo / un portfolio.
+
+### Frontend sur Vercel (gratuit)
+
+1. Créez un compte sur https://vercel.com (connexion GitHub).
+2. **Add New** → **Project** → importez ce repo.
+3. Réglages du projet :
+   - **Root Directory** : `frontend`
+   - **Framework Preset** : Vite (détecté automatiquement)
+   - **Variable d'environnement** : `VITE_API_URL` = `https://taskly-api.onrender.com/api`
+     (l'URL Render de l'étape précédente, suffixée de `/api`)
+4. **Deploy** → votre site est en ligne sur `https://votre-projet.vercel.app`.
+
+### Dernier réglage : CORS
+
+Dans Render → `taskly-api` → **Environment**, ajustez `CORS_ALLOW_ORIGIN`
+avec l'URL exacte de votre front (échappez les points) :
+
+```
+^https://votre-projet\.vercel\.app$
+```
+
+Redéployez le service et testez l'inscription depuis le site Vercel.
+
+### Alternatives gratuites
+
+- **Front** : Netlify, Cloudflare Pages, GitHub Pages (mêmes réglages : dossier `frontend`, build `npm run build`, sortie `dist`).
+- **Back** : Koyeb ou Fly.io (le `Dockerfile` fourni fonctionne partout) ; base gratuite durable : Neon.tech (PostgreSQL) — mettez son URL dans `DATABASE_URL`.
 
 ## Structure de l'API
 
