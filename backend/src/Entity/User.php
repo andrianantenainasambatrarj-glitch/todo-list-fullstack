@@ -3,32 +3,44 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource]
+#[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé.')]
+#[ApiResource(
+    operations: [
+        // Un utilisateur ne peut consulter que son propre profil.
+        new Get(security: "is_granted('ROLE_USER') and object == user"),
+    ],
+    normalizationContext: ['groups' => ['user:read']],
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups('read')]
+    #[Groups(['user:read'])]
+    #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
 
     #[ORM\Column]
     private array $roles = [];
 
+    // Jamais sérialisé : pas de groupe de normalisation.
     #[ORM\Column]
     private ?string $password = null;
 
@@ -40,7 +52,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->tasks = new ArrayCollection();
     }
 
-    // Getters et Setters (générés par make:entity)
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): ?string { return $this->email; }
