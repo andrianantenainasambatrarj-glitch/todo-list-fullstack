@@ -8,3 +8,12 @@ controllers:
 api_login:
     path: /api/login
     methods: [POST]
+
+# La racine du site redirige vers la documentation de l'API
+# (évite le « 404 Not Found » quand on ouvre l'URL du backend dans un navigateur).
+home:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        path: /api
+        permanent: false
